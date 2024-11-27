@@ -1,0 +1,48 @@
+import sys
+import tensorflow.keras as keras
+from tensorflow.keras.utils import to_categorical
+import pickle
+import matplotlib.pyplot as plt
+import numpy as np
+import bz2
+import gc
+import re
+import os
+
+# import models
+from base_model import BaseModel
+
+# LossHistory Class
+class LossHistory(keras.callbacks.Callback):
+    def __init__(self):
+        self.loss = []
+        self.rpn_class_loss = []
+        self.rpn_bbox_loss = []
+        self.mrcnn_class_loss = []
+        self.mrcnn_bbox_loss = []
+        self.mrcnn_mask_loss = []
+        self.acc_epochs = 0
+        super(LossHistory, self).__init__()
+
+    def on_epoch_end(self, epoch, logs={}):
+        self.loss.append(logs.get('loss'))
+        self.rpn_class_loss.append(logs.get('rpn_class_loss'))
+        self.rpn_bbox_loss.append(logs.get('rpn_bbox_loss'))
+        self.mrcnn_class_loss.append(logs.get('mrcnn_class_loss'))
+        self.mrcnn_bbox_loss.append(logs.get('mrcnn_bbox_loss'))
+        self.mrcnn_mask_loss.append(logs.get('mrcnn_mask_loss'))
+        if epoch%1 == 0:
+            # Save model
+            print ("Saving the model in ./experiments/current/m_" + str(epoch))
+            model.save(name='C:/Users/Manish/projects/tiya/SF2021/models/experiments/current/m_' + str(epoch))
+
+params = {}
+params["model_dir"] = 'C:/Users/Manish/projects/tiya/SF2021/models'
+params['scan_type'] = 't1'
+params['resetHistory'] = False
+
+## Define the model
+model = BaseModel(params)
+model.history = LossHistory()
+model.train()
+
